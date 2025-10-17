@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Circuit Simulator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- React CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.20.15/babel.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="root" class="min-h-screen flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [numQubits, setNumQubits] = useState(2);
+            const [gates, setGates] = useState([]);
+            const [example, setExample] = useState("None");
+            const [shots, setShots] = useState(1024);
+            const [circuitImage, setCircuitImage] = useState(null);
+            const [histogramImage, setHistogramImage] = useState(null);
+            const [error, setError] = useState(null);
+            const [gateType, setGateType] = useState("H (Hadamard)");
+            const [targetQubit, setTargetQubit] = useState(0);
+            const [controlQubit, setControlQubit] = useState(1);
+            const [isLoading, setIsLoading] = useState(false);
+
+            // Load example circuits
+            const loadExample = async (exampleName) => {
+                setError(null);
+                setIsLoading(true);
+                try {
+                    const response = await fetch(`/load_example?example=${exampleName}&qubits=${numQubits}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                    }
+                    const data = await response.json();
+                    if (data.error) {
+                        setError(data.error);
+                    } else {
+                        setGates(data.gates);
+                        setCircuitImage(data.circuit_image);
+                        setHistogramImage(null);
+                    }
+                } catch (err) {
+                    console.error("Load example error:", err);
+                    setError(`Failed to load example circuit: ${err.message}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            // Handle gate addition
+            const addGate = async (event) => {
+                event.preventDefault();
+                setError(null);
+                setIsLoading(true);
+                try {
+                    const payload = {
+                        gate_type: gateType,
+                        target_qubit: Number(targetQubit),
+                        qubits: Number(numQubits)
+                    };
+                    if (gateType === "CX (CNOT)" || gateType === "CZ (Controlled-Z)") {
+                        payload.control_qubit = Number(controlQubit);
+                    }
+                    const response = await fetch('/add_gate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                    }
+                    const data = await response.json();
+                    if (data.error) {
+                        setError(data.error);
+                    } else {
+                        setGates(data.gates);
+                        setCircuitImage(data.circuit_image);
+                    }
+                } catch (err) {
+                    console.error("Add gate error:", err);
+                    setError(`Failed to add gate: ${err.message}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            // Simulate circuit
+            const simulateCircuit = async () => {
+                setError(null);
+                setIsLoading(true);
+                try {
+                    const response = await fetch(`/simulate?shots=${shots}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                    }
+                    const data = await response.json();
+                    if (data.error) {
+                        setError(data.error);
+                    } else {
+                        setCircuitImage(data.circuit_image);
+                        setHistogramImage(data.histogram_image);
+                    }
+                } catch (err) {
+                    console.error("Simulate circuit error:", err);
+                    setError(`Failed to simulate circuit: ${err.message}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            // Reset circuit
+            const resetCircuit = async () => {
+                setError(null);
+                setIsLoading(true);
+                try {
+                    const response = await fetch(`/reset?qubits=${numQubits}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+                    }
+                    const data = await response.json();
+                    setGates([]);
+                    setCircuitImage(null);
+                    setHistogramImage(null);
+                } catch (err) {
+                    console.error("Reset circuit error:", err);
+                    setError(`Failed to reset circuit: ${err.message}`);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            // Handle example selection
+            useEffect(() => {
+                if (example !== "None") {
+                    loadExample(example);
+                }
+            }, [example]);
+
+            return (
+                <div className="container mx-auto p-6">
+                    <h1 className="text-4xl font-bold text-center text-blue-600 mb-6">Quantum Circuit Simulator</h1>
+                    <p className="text-lg text-gray-700 mb-6 text-center">
+                        Build and simulate quantum circuits. Add gates, load examples, or simulate results!
+                    </p>
+
+                    {isLoading && (
+                        <p className="text-center text-blue-500 mb-4">Loading...</p>
+                    )}
+
+                    {error && (
+                        <p className="text-red-500 mb-4 text-center font-semibold">{error}</p>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div className="md:col-span-1 bg-white p-4 rounded-lg shadow">
+                            <h2 className="text-xl font-semibold mb-4">Circuit Settings</h2>
+                            <label className="block mb-2">Number of Qubits (1-5)</label>
+                            <input
+                                type="range"
+                                min="1"
+                                max="5"
+                                value={numQubits}
+                                onChange={(e) => { setNumQubits(e.target.value); resetCircuit(); }}
+                                className="w-full"
+                                disabled={isLoading}
+                            />
+                            <p className="text-gray-600">{numQubits} qubits</p>
+
+                            <h2 className="text-xl font-semibold mt-6 mb-4">Load Example</h2>
+                            <select
+                                className="w-full p-2 border rounded"
+                                value={example}
+                                onChange={(e) => setExample(e.target.value)}
+                                disabled={isLoading}
+                            >
+                                <option>None</option>
+                                <option>Bell State (Entanglement)</option>
+                                <option>Grover's Algorithm (2-Qubit Search)</option>
+                            </select>
+
+                            <h2 className="text-xl font-semibold mt-6 mb-4">Add Gates</h2>
+                            <select
+                                className="w-full p-2 border rounded mb-4"
+                                value={gateType}
+                                onChange={(e) => setGateType(e.target.value)}
+                                disabled={isLoading}
+                            >
+                                <option>H (Hadamard)</option>
+                                <option>X (Pauli-X)</option>
+                                <option>CX (CNOT)</option>
+                                <option>CZ (Controlled-Z)</option>
+                                <option>Measure</option>
+                            </select>
+                            {gateType !== "Measure" && (
+                                <>
+                                    <label className="block mb-2">Target Qubit</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        max={numQubits - 1}
+                                        value={targetQubit}
+                                        onChange={(e) => setTargetQubit(Number(e.target.value))}
+                                        className="w-full p-2 border rounded mb-4"
+                                        disabled={isLoading}
+                                    />
+                                    {(gateType === "CX (CNOT)" || gateType === "CZ (Controlled-Z)") && (
+                                        <>
+                                            <label className="block mb-2">Control Qubit</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                max={numQubits - 1}
+                                                value={controlQubit}
+                                                onChange={(e) => setControlQubit(Number(e.target.value))}
+                                                className="w-full p-2 border rounded mb-4"
+                                                disabled={isLoading}
+                                            />
+                                        </>
+                                    )}
+                                </>
+                            )}
+                            <button
+                                onClick={addGate}
+                                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+                                disabled={isLoading}
+                            >
+                                Add Gate
+                            </button>
+                        </div>
+
+                        <div className="md:col-span-3 bg-white p-6 rounded-lg shadow">
+                            <h2 className="text-2xl font-semibold mb-4">Current Circuit</h2>
+                            <ul className="list-disc pl-5 mb-6">
+                                {gates.map((gate, index) => (
+                                    <li key={index} className="text-gray-700">{JSON.stringify(gate)}</li>
+                                ))}
+                            </ul>
+
+                            <div className="flex space-x-4 mb-6">
+                                <button
+                                    onClick={resetCircuit}
+                                    className="bg-red-500 text-white p-2 rounded hover:bg-red-600"
+                                    disabled={isLoading}
+                                >
+                                    Reset Circuit
+                                </button>
+                                <div className="flex items-center">
+                                    <label className="mr-2">Shots:</label>
+                                    <input
+                                        type="number"
+                                        min="100"
+                                        max="10000"
+                                        value={shots}
+                                        onChange={(e) => setShots(Number(e.target.value))}
+                                        className="p-2 border rounded w-24"
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                                <button
+                                    onClick={simulateCircuit}
+                                    className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+                                    disabled={isLoading}
+                                >
+                                    Simulate Circuit
+                                </button>
+                            </div>
+
+                            {circuitImage && (
+                                <>
+                                    <h2 className="text-2xl font-semibold mb-4">Circuit Diagram</h2>
+                                    <img src={`data:image/png;base64,${circuitImage}`} alt="Circuit Diagram" className="w-full max-w-2xl mx-auto" />
+                                </>
+                            )}
+
+                            {histogramImage && (
+                                <>
+                                    <h2 className="text-2xl font-semibold mt-6 mb-4">Simulation Results</h2>
+                                    <img src={`data:image/png;base64,${histogramImage}`} alt="Histogram" className="w-full max-w-2xl mx-auto" />
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <footer className="mt-8 text-center text-gray-600">
+                        Built with Qiskit, FastAPI, and React. Expand by adding more gates or real quantum hardware!
+                    </footer>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

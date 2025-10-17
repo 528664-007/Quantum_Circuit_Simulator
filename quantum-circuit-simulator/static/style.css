@@ -1,0 +1,177 @@
+/* style.css - Custom styles for Quantum Circuit Simulator */
+
+/* Root variables for consistent theming */
+:root {
+    --quantum-blue: #1e3a8a; /* Deep blue for quantum theme */
+    --quantum-accent: #60a5fa; /* Lighter blue for hover/active */
+    --error-red: #ef4444;
+    --success-green: #10b981;
+    --bg-light: #f3f4f6;
+    --text-dark: #1f2937;
+    --loading-blue: #3b82f6; /* Blue for loading indicator */
+}
+
+/* Global styles */
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+}
+
+/* Button styles */
+button {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:focus {
+    outline: none;
+    ring: 2px solid var(--quantum-accent);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Specific button colors (override Tailwind if needed) */
+.bg-blue-500 {
+    background-color: var(--quantum-blue);
+}
+
+.bg-blue-500:hover:not(:disabled) {
+    background-color: var(--quantum-accent);
+}
+
+.bg-red-500 {
+    background-color: var(--error-red);
+}
+
+.bg-red-500:hover:not(:disabled) {
+    background-color: #dc2626;
+}
+
+.bg-green-500 {
+    background-color: var(--success-green);
+}
+
+.bg-green-500:hover:not(:disabled) {
+    background-color: #059669;
+}
+
+/* Image styles for circuit and histogram */
+img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+img:hover {
+    transform: scale(1.02);
+}
+
+/* Input and select styles */
+input[type="number"],
+input[type="range"],
+select {
+    transition: all 0.2s ease;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--quantum-accent);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3);
+}
+
+input:disabled,
+select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Custom container for main content */
+.container {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 1.5rem;
+}
+
+/* Footer styles */
+footer {
+    margin-top: 2rem;
+    padding: 1rem;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+/* Error message styles */
+.text-red-500 {
+    animation: fadeIn 0.5s ease-in-out;
+    background-color: #fee2e2; /* Light red background for visibility */
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--error-red);
+}
+
+/* Loading indicator styles */
+.text-blue-500 {
+    animation: pulse 1.5s infinite;
+    background-color: #dbeafe; /* Light blue background */
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--loading-blue);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    button {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    img {
+        max-width: 90%;
+        margin: 0 auto;
+    }
+
+    .text-red-500,
+    .text-blue-500 {
+        font-size: 0.875rem;
+        padding: 0.5rem;
+    }
+}
