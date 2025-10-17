@@ -152,6 +152,11 @@ Built with Qiskit for quantum circuit simulation.
 Powered by FastAPI and React.
 Styled with Tailwind CSS.
 <img width="1700" height="893" alt="Screenshot 2025-10-17 114207" src="https://github.com/user-attachments/assets/12a84a43-d7f0-4593-b297-6916e6eb79a3" />
+<img width="906" height="805" alt="Screenshot 2025-10-17 114221" src="https://github.com/user-attachments/assets/185218cb-9691-4672-a9cc-4352b08a8632" />
+<img width="1122" height="802" alt="Screenshot 2025-10-17 114232" src="https://github.com/user-attachments/assets/1ed8b6b2-a49a-4247-9fe1-47b180ebfa0f" />
+<img width="1589" height="913" alt="Screenshot 2025-10-17 114301" src="https://github.com/user-attachments/assets/0b5377ab-3e21-4f83-a21b-2a89cfd2856f" />
+<img width="1090" height="695" alt="Screenshot 2025-10-17 114312" src="https://github.com/user-attachments/assets/646ed1f5-113a-410b-8dee-213ebd13fa57" />
+
 
 
 Contact
