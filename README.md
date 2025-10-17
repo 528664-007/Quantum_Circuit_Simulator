@@ -26,7 +26,7 @@ Optional: PowerShell or Command Prompt for Windows
 Setup Instructions (Windows)
 
 Clone the Repository:
-git clone https://github.com/your-username/quantum-circuit-simulator.git
+git clone https://github.com/528664-007/quantum-circuit-simulator.git
 cd quantum-circuit-simulator
 
 
