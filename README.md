@@ -151,6 +151,10 @@ Acknowledgments
 Built with Qiskit for quantum circuit simulation.
 Powered by FastAPI and React.
 Styled with Tailwind CSS.
+<img width="1700" height="893" alt="Screenshot 2025-10-17 114207" src="https://github.com/user-attachments/assets/12a84a43-d7f0-4593-b297-6916e6eb79a3" />
+
 
 Contact
-For issues or suggestions, open an issue on GitHub or contact [your-email@example.com].
+For issues or suggestions, open an issue on GitHub or contact [sameerfayaz1028@example.com].
+
+
